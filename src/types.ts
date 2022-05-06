@@ -25,3 +25,10 @@ export interface CatAPIResponse {
 export interface PageInfo {
     [key: string]: string | number
 }
+
+export interface CatImageQueryParams {
+    breed_id: string,
+    limit: number,
+    page: number,
+    order: string
+}

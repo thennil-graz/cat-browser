@@ -6,7 +6,7 @@ import { CatImage, CatInfo } from '../types';
 
 function CatImageCard({ breed, image }: CatInfo) {
     return (
-        <Col md={3} sm={6} >
+        <Col md={3} sm={6} xs={12}>
             <Card id={image.id}>
                 <Card.Img variant="top" src={image.url} />
                 <Card.Body>

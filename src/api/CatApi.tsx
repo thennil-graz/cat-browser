@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { api } from './config';
-import { PageInfo } from '../types';
+import { CatImageQueryParams } from '../types';
 
 
 const catClient = axios.create({
@@ -15,11 +15,13 @@ export function getBreeds() {
     return catClient.get('/breeds');
 }
 
-export function getCatImagesByBreed(breed_id: string, page_info: PageInfo) {
+export function getCatImagesByBreed({ breed_id, limit, page, order }: CatImageQueryParams) {
     return catClient.get('/images/search', {
         params: {
             breed_id,
-            ...page_info
+            limit,
+            page,
+            order
         }
     });
 }
