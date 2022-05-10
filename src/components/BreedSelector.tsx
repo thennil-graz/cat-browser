@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { Button, Col, FormGroup, FormLabel, FormSelect, Row, Spinner } from 'react-bootstrap';
-import { CatAPIResponse, CatBreed, CatInfo, CatImageQueryParams } from '../types';
+import { Button, Col, FormGroup, FormLabel, FormSelect, Row } from 'react-bootstrap';
+import { CatBreed, CatImage, CatImageQueryParams } from '../types';
 import CatImageCard from './CatImageCard';
 import { getCatImagesByBreed } from '../api/CatApi';
-import { AxiosResponseHeaders } from 'axios';
+import Loader from './Loader'
 
 interface Props {
     breeds: CatBreed[]
@@ -12,8 +12,8 @@ function BreedSelector({ breeds }: Props) {
     const items = listBreeds(breeds);
     const [isLoading, setIsLoading] = useState(false);
     const [loadNextPage, setLoadNextPage] = useState(false);
-    const [value, setValue] = useState("");
-    const [cards, setCards] = useState<CatInfo[]>([]);
+    const [value, setValue] = useState("default");
+    const [cards, setCards] = useState<CatImage[]>([]);
 
     const [pageInfo, setPageInfo] = useState({
         totalPage: 0,
@@ -50,7 +50,7 @@ function BreedSelector({ breeds }: Props) {
     return (
         <><Col md={6}>
             <FormGroup className="mb-3">
-                <FormLabel>Breed</FormLabel>
+                <FormLabel htmlFor="breed">Breed</FormLabel>
                 <FormSelect id="breed" size="sm" value={value} onChange={handleOnChange}>
                     {items}
                 </FormSelect>
@@ -58,7 +58,7 @@ function BreedSelector({ breeds }: Props) {
         </Col>
             <Row>
                 {isLoading
-                    ? <Col md={6}> <LoadingPlaceholder /> </Col>
+                    ? <Col md={6}> <Loader /> </Col>
                     : listCatImages(cards)
                 }
             </Row>
@@ -66,7 +66,7 @@ function BreedSelector({ breeds }: Props) {
                 <Row>
                     <Col md={6}>
                         <Button variant="primary" onClick={handleButtonClick} disabled={loadNextPage}>
-                            {loadNextPage ? <LoadingPlaceholder /> : 'Load More'}
+                            {loadNextPage ? <Loader /> : 'Load More'}
                         </Button>
                     </Col>
                 </Row>
@@ -74,14 +74,10 @@ function BreedSelector({ breeds }: Props) {
         </>
     );
 
-    function LoadingPlaceholder() {
-        return <><Spinner as="span" animation="grow" size="sm" role="status" aria-hidden="true" /> Loading results...</>;
-    }
-
     function loadCatImages(params: CatImageQueryParams, currentPage: number) {
         getCatImagesByBreed(params).then(response => {
-            const list: CatInfo[] = [];
-            const { data, headers }: { data: CatAPIResponse[]; headers: AxiosResponseHeaders; } = response;
+            const list: CatImage[] = [];
+            const { data, headers } = response;
 
             const { 'pagination-count': resultCount } = headers;
 
@@ -91,16 +87,14 @@ function BreedSelector({ breeds }: Props) {
             };
             setPageInfo(pageInfo);
 
-            data.map(({ breeds, id, url }) => {
-                const [breed] = breeds;
+            data.map(({ id: imageId, url }) => {
                 list.push({
-                    breed: breed,
-                    image: {
-                        id: id,
-                        url: url
-                    }
+                    imageId,
+                    url
                 });
+                return list;
             });
+
             setCards(params.breed_id === value && cards.length > 0 ? cards.concat(list) : list);
             setIsLoading(false);
             setLoadNextPage(false);
@@ -112,18 +106,18 @@ function BreedSelector({ breeds }: Props) {
         });
     }
 
-    function listCatImages(cards: CatInfo[]): React.ReactNode {
+    function listCatImages(cards: CatImage[]): React.ReactNode {
         return cards.length === 0
             ? <span>No cats are available</span>
-            : cards.map(c => <CatImageCard breed={c.breed} image={c.image} />);
+            : cards.map(({ imageId, url }) => <CatImageCard imageId={imageId} url={url} />);
     }
 
     function listBreeds(breeds: CatBreed[]) {
         const items = [];
         if (breeds.length === 0) {
-            items.push(<option key={0} value="" >No breeds are available</option>);
+            items.push(<option key={0} value="default" >No breeds are available</option>);
         } else {
-            items.push(<option key={0}>Please select a breed</option>);
+            items.push(<option key={0} value="default">Please select a breed</option>);
             breeds.map(({ id, name }) => items.push(<option key={id} value={id}>{name}</option>));
         }
         return items;

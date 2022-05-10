@@ -7,14 +7,11 @@ export interface CatBreed {
 }
 
 export interface CatImage {
-    id: string,
+    imageId: string,
     url: string
 }
 
-export interface CatInfo {
-    breed: CatBreed,
-    image: CatImage
-}
+export interface CatDetails extends CatBreed, CatImage { }
 
 export interface CatAPIResponse {
     breeds: CatBreed[],

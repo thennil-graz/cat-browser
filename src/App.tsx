@@ -1,25 +1,27 @@
-import React from 'react';
 import { Container, Navbar } from 'react-bootstrap';
-import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
+import { BrowserRouter, Route, Routes, NavLink } from 'react-router-dom';
 import Home from './components/Home'
 import './App.css';
+import Cat from './components/Cat';
 
 function App() {
   return (
-    <BrowserRouter>
-      <div className="App">
+    <div className="App">
+      <BrowserRouter>
         <Navbar bg="light" expand="lg">
           <Container>
-            <Navbar.Brand>Cat Browser</Navbar.Brand>
+            <Navbar.Brand>
+              <NavLink to="/">Cat Browser</NavLink>
+            </Navbar.Brand>
           </Container>
         </Navbar>
-        <Container>
-          <Home />
-        </Container>
-      </div>
-    </BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/:id" element={<Cat />} />
+        </Routes>
+      </BrowserRouter>
+    </div>
 
   );
 }
-
 export default App;

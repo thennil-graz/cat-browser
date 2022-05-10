@@ -1,6 +1,6 @@
-import axios from 'axios';
+import axios, { AxiosResponse, AxiosResponseHeaders } from 'axios';
 import { api } from './config';
-import { CatImageQueryParams } from '../types';
+import { CatAPIResponse, CatBreed, CatImageQueryParams } from '../types';
 
 
 const catClient = axios.create({
@@ -11,11 +11,12 @@ const catClient = axios.create({
     }
 })
 
-export function getBreeds() {
+export function getBreeds(): Promise<AxiosResponse<CatBreed[], AxiosResponseHeaders>> {
     return catClient.get('/breeds');
 }
 
-export function getCatImagesByBreed({ breed_id, limit, page, order }: CatImageQueryParams) {
+export function getCatImagesByBreed({ breed_id, limit, page, order }: CatImageQueryParams)
+    : Promise<AxiosResponse<CatAPIResponse[], AxiosResponseHeaders>> {
     return catClient.get('/images/search', {
         params: {
             breed_id,
@@ -24,4 +25,7 @@ export function getCatImagesByBreed({ breed_id, limit, page, order }: CatImageQu
             order
         }
     });
+}
+export function getCatImage(id: string): Promise<AxiosResponse<CatAPIResponse, AxiosResponseHeaders>> {
+    return catClient.get(`/images/${id}`);
 }
