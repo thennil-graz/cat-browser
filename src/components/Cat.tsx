@@ -1,18 +1,15 @@
 import { useState, useEffect, useContext } from 'react';
-import { useParams, useSearchParams, useNavigate, createSearchParams } from 'react-router-dom';
+import { useParams, useNavigate, createSearchParams } from 'react-router-dom';
 import { Alert, Card, Col, Button, Row, Container } from 'react-bootstrap';
 import { getCatImage } from '../api/CatApi';
 import { CatDetails } from '../types';
 import Loader from './Loader';
 import { BreedContext } from '../components/BreedContext'
 
-type CatParams = {
-    catId: string
-}
 
 function Cat() {
-    const { breedId: selectedBreed, setBreedId } = useContext(BreedContext);
-    const { catId } = useParams<CatParams>();
+    const { setBreedId } = useContext(BreedContext);
+    const { catId } = useParams<string>();
     const navigate = useNavigate();
     const [cat, setCat] = useState<CatDetails | null | undefined>(null);
     const [isLoading, setIsLoading] = useState(false);
@@ -46,7 +43,6 @@ function Cat() {
 
     const handleBackButton = (breedId: string): void => {
         setBreedId(breedId);
-        console.log(`onbackbutton${selectedBreed}`)
         navigate({
             pathname: '/',
             search: `?${createSearchParams({ breed: breedId })}`

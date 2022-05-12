@@ -15,7 +15,7 @@ function Home() {
         getBreeds().then(response => {
             setBreeds(response.data)
         })
-    }, [breeds]);
+    }, []);
 
 
     return (

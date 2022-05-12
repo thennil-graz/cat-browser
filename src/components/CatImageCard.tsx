@@ -1,6 +1,4 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { Button, Col, Card, Ratio } from 'react-bootstrap';
+import { Button, Col, Card } from 'react-bootstrap';
 import { CatImage } from '../types';
 
 
