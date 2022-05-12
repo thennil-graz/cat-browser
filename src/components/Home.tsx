@@ -1,26 +1,28 @@
-import React, { useState, useEffect } from 'react';
+import { useEffect, useContext } from 'react';
 import { Container, Row } from 'react-bootstrap'
 import BreedSelector from './BreedSelector';
 import { getBreeds } from '../api/CatApi';
-import { CatBreed } from '../types';
+import { BreedContext } from '../components/BreedContext';
 
 function Home() {
-    // Breeds is empty on initial state
-    const [breeds, setBreeds] = useState<CatBreed[]>([]);
+    const { breeds, setBreeds } = useContext(BreedContext);
 
     // Fetch breeds from API on initial render of component 
     useEffect(() => {
+        if (breeds.length) {
+            return;
+        }
         getBreeds().then(response => {
             setBreeds(response.data)
         })
-    }, []);
+    }, [breeds]);
 
 
     return (
         <div className="Home">
             <Container fluid="md">
                 <Row>
-                    <BreedSelector breeds={breeds} />
+                    <BreedSelector />
                 </Row>
             </Container>
         </div >

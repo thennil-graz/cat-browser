@@ -1,18 +1,22 @@
-import React, { useState } from 'react';
+import React, { useState, useContext, useEffect, useRef } from 'react';
 import { Button, Col, FormGroup, FormLabel, FormSelect, Row } from 'react-bootstrap';
 import { CatBreed, CatImage, CatImageQueryParams } from '../types';
 import CatImageCard from './CatImageCard';
 import { getCatImagesByBreed } from '../api/CatApi';
 import Loader from './Loader'
+import { useSearchParams } from 'react-router-dom';
+import { BreedContext } from '../components/BreedContext'
 
-interface Props {
-    breeds: CatBreed[]
-}
-function BreedSelector({ breeds }: Props) {
+function BreedSelector() {
+    const { breeds, breedId, setBreedId } = useContext(BreedContext);
+    const [searchParams] = useSearchParams();
+    const breedParam = searchParams.get('breed');
+
     const items = listBreeds(breeds);
+    const prevSelected = useRef<string>();
+
     const [isLoading, setIsLoading] = useState(false);
     const [loadNextPage, setLoadNextPage] = useState(false);
-    const [value, setValue] = useState("default");
     const [cards, setCards] = useState<CatImage[]>([]);
 
     const [pageInfo, setPageInfo] = useState({
@@ -20,38 +24,43 @@ function BreedSelector({ breeds }: Props) {
         currentPage: 0,
     });
 
+    useEffect(() => {
+        const { currentPage } = pageInfo;
+
+        //check if there's selected breed ID in search parameters and in the state
+        if (breedId !== "default" || breedParam) {
+            const selected = breedParam ? breedParam : breedId;
+            setBreedId(selected)
+            loadCatImages(selected, currentPage);
+        }
+
+    }, [breedId, loadNextPage])
 
     const handleOnChange = (e: React.ChangeEvent<HTMLSelectElement>): void => {
-        const params: CatImageQueryParams = {
-            breed_id: e.target.value,
-            limit: 10,
-            page: 0,
-            order: "asc"
-        }
-
-        setValue(e.target.value);
+        searchParams.delete("breed");
+        prevSelected.current = breedId;
+        setBreedId(e.target.value);
         setIsLoading(true);
         setLoadNextPage(false);
-        loadCatImages(params, 0);
+        setPageInfo({
+            totalPage: 0,
+            currentPage: 0
+        })
     }
 
-    const handleButtonClick = () => {
-        const { currentPage } = pageInfo;
-        const params: CatImageQueryParams = {
-            breed_id: value,
-            limit: 10,
-            page: currentPage,
-            order: "asc"
-        }
+    const loadMoreData = () => {
+        prevSelected.current = breedId;
         setLoadNextPage(true);
-        loadCatImages(params, currentPage);
+        setPageInfo({
+            ...pageInfo
+        })
     }
 
     return (
         <><Col md={6}>
             <FormGroup className="mb-3">
                 <FormLabel htmlFor="breed">Breed</FormLabel>
-                <FormSelect id="breed" size="sm" value={value} onChange={handleOnChange}>
+                <FormSelect id="breed" size="sm" value={breedId} onChange={handleOnChange}>
                     {items}
                 </FormSelect>
             </FormGroup>
@@ -65,7 +74,7 @@ function BreedSelector({ breeds }: Props) {
             {cards.length > 0 && (pageInfo.totalPage > pageInfo.currentPage) &&
                 <Row>
                     <Col md={6}>
-                        <Button variant="primary" onClick={handleButtonClick} disabled={loadNextPage}>
+                        <Button variant="success" onClick={loadMoreData} disabled={loadNextPage}>
                             {loadNextPage ? <Loader /> : 'Load More'}
                         </Button>
                     </Col>
@@ -74,7 +83,14 @@ function BreedSelector({ breeds }: Props) {
         </>
     );
 
-    function loadCatImages(params: CatImageQueryParams, currentPage: number) {
+    function loadCatImages(breedId: string, currentPage: number) {
+        const params: CatImageQueryParams = {
+            breed_id: breedId,
+            limit: 10,
+            page: currentPage,
+            order: "asc"
+        }
+
         getCatImagesByBreed(params).then(response => {
             const list: CatImage[] = [];
             const { data, headers } = response;
@@ -85,22 +101,23 @@ function BreedSelector({ breeds }: Props) {
                 totalPage: Math.ceil(parseInt(resultCount) / params.limit),
                 currentPage: currentPage + 1
             };
-            setPageInfo(pageInfo);
 
-            data.map(({ id: imageId, url }) => {
+            data.map(({ id: imageId, url }) => (
                 list.push({
                     imageId,
                     url
-                });
-                return list;
-            });
-
-            setCards(params.breed_id === value && cards.length > 0 ? cards.concat(list) : list);
+                })
+            ));
+            setPageInfo(pageInfo);
+            setCards(prevSelected.current === breedId ? cards.concat(list) : list);
+            setIsLoading(false);
+            console.log(cards.length)
+        }).catch(err => {
+            setBreedId("");
+            setCards([]);
             setIsLoading(false);
             setLoadNextPage(false);
-        }).catch(err => {
-            setValue("");
-            setCards([]);
+        }).finally(() => {
             setIsLoading(false);
             setLoadNextPage(false);
         });

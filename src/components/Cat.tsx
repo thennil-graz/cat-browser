@@ -1,25 +1,27 @@
-import { useState, useEffect, } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useState, useEffect, useContext } from 'react';
+import { useParams, useSearchParams, useNavigate, createSearchParams } from 'react-router-dom';
 import { Alert, Card, Col, Button, Row, Container } from 'react-bootstrap';
 import { getCatImage } from '../api/CatApi';
 import { CatDetails } from '../types';
 import Loader from './Loader';
+import { BreedContext } from '../components/BreedContext'
 
 type CatParams = {
-    id: string
+    catId: string
 }
 
 function Cat() {
-    const { id } = useParams<CatParams>();
+    const { breedId: selectedBreed, setBreedId } = useContext(BreedContext);
+    const { catId } = useParams<CatParams>();
     const navigate = useNavigate();
     const [cat, setCat] = useState<CatDetails | null | undefined>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(false);
 
     useEffect(() => {
-        if (id) {
+        if (catId) {
             setIsLoading(true);
-            getCatImage(id).then(response => {
+            getCatImage(catId).then(response => {
                 setIsLoading(false);
                 const { breeds, id: imageId, url } = response.data;
                 if (breeds) {
@@ -40,13 +42,22 @@ function Cat() {
                 setError(true);
             });
         }
-    }, [id])
+    }, [catId])
+
+    const handleBackButton = (breedId: string): void => {
+        setBreedId(breedId);
+        console.log(`onbackbutton${selectedBreed}`)
+        navigate({
+            pathname: '/',
+            search: `?${createSearchParams({ breed: breedId })}`
+        })
+    }
 
     if (!cat) {
         return displayError();
     }
 
-    const { imageId, url, name, origin, temperament, description } = cat;
+    const { id: breedId, imageId, url, name, origin, temperament, description } = cat;
     return (
         <div className="Cat">
             <Container fluid="md">
@@ -57,7 +68,7 @@ function Cat() {
                             : <>
                                 <Card id={imageId}>
                                     <Card.Header>
-                                        <Button variant="primary" size="sm" onClick={() => navigate(-1)}>Back</Button>
+                                        <Button variant="primary" size="sm" onClick={() => handleBackButton(breedId)}>Back</Button>
                                     </Card.Header>
                                     <Card.Img variant="top" src={url} />
                                     <Card.Body>
