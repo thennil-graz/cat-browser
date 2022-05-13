@@ -22,7 +22,8 @@ export function getCatImagesByBreed({ breed_id, limit, page, order }: CatImageQu
             breed_id,
             limit,
             page,
-            order
+            order,
+            size: "full"
         }
     });
 }

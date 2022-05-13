@@ -72,7 +72,7 @@ function BreedSelector() {
                 }
             </Row>
             {cards.length > 0 && (pageInfo.totalPage > pageInfo.currentPage) &&
-                <Row>
+                <Row className="mb-3">
                     <Col md={6}>
                         <Button variant="success" onClick={loadMoreData} disabled={loadNextPage}>
                             {loadNextPage ? <Loader /> : 'Load More'}

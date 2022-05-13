@@ -28,5 +28,6 @@ export interface CatImageQueryParams {
     breed_id: string,
     limit: number,
     page: number,
-    order: string
+    order: string,
+    size?: string
 }

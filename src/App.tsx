@@ -1,7 +1,7 @@
 import { Container, Navbar } from 'react-bootstrap';
 import { BrowserRouter, Route, Routes, NavLink } from 'react-router-dom';
 import Home from './components/Home'
-import './App.css';
+import './App.scss';
 import Cat from './components/Cat';
 import { BreedProvier } from './components/BreedContext';
 
@@ -13,7 +13,7 @@ function App() {
           <Navbar bg="light" expand="lg">
             <Container>
               <Navbar.Brand>
-                <NavLink to="/">Cat Browser</NavLink>
+                <NavLink to="/" id="brand"><h1>Cat Browser</h1></NavLink>
               </Navbar.Brand>
             </Container>
           </Navbar>

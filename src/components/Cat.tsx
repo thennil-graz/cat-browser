@@ -57,7 +57,7 @@ function Cat() {
     return (
         <div className="Cat">
             <Container fluid="md">
-                <Row>
+                <Row className="m-2">
                     <Col xs={12}>
                         {isLoading ?
                             <Loader />
