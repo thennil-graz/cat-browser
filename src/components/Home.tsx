@@ -21,7 +21,7 @@ function Home() {
     return (
         <div className="Home">
             <Container fluid="md">
-                <Row>
+                <Row className="my-3">
                     <BreedSelector />
                 </Row>
             </Container>
